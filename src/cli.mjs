@@ -6,6 +6,7 @@ import { analyze, hasFailingIssues } from './lib/analyze.mjs';
 import { makeReport, saveReports } from './lib/report.mjs';
 import { simulate } from './lib/simulate.mjs';
 import { makeScenarioReport, saveScenarioReports } from './lib/scenario-report.mjs';
+import { compareReportFiles, shouldFailComparison } from './lib/report-files.mjs';
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
@@ -16,6 +17,23 @@ async function main() {
     console.log(`Node.js: ${process.version}`);
     console.log(`Chrome: ${chrome || 'NOT FOUND'}`);
     if (!chrome) process.exitCode = 1;
+    return;
+  }
+  if (options.command === 'compare') {
+    const comparison = await compareReportFiles(options);
+    if (comparison.kind === 'inspection') {
+      console.log(`FlowFault compare | ${comparison.current.target}`);
+      console.log(`New ${comparison.counts.added} | Resolved ${comparison.counts.resolved} | Persisting ${comparison.counts.persisting} | New critical ${comparison.counts.newCritical}`);
+      for (const item of comparison.added.slice(0, 12)) console.log(`  [+] ${item.code} ${item.title}`);
+      for (const item of comparison.resolved.slice(0, 12)) console.log(`  [-] ${item.code} ${item.title}`);
+    } else {
+      console.log(`FlowFault compare | ${comparison.current.target}`);
+      console.log(`Scenario ${comparison.current.profile} | ${comparison.current.endpoint}`);
+      console.log(`Status changed: ${comparison.statusChanged ? 'yes' : 'no'} | Observed latency delta: ${comparison.deltaMs == null ? 'unavailable' : `${comparison.deltaMs} ms`}`);
+      console.log('One observation per report. No trend or recovery claim is made.');
+    }
+    if (options.json) console.log(`Comparison JSON: ${options.json}`);
+    if (shouldFailComparison(comparison, options.failOn)) process.exitCode = 2;
     return;
   }
   if (options.command === 'simulate') {
