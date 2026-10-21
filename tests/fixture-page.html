@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>FlowFault example registration</title></head>
+<body>
+  <h1>Registration</h1>
+  <form id="registration" action="/submit?api_key=PRIVATE_QUERY_STRING" method="get">
+    <label for="email">Email address</label>
+    <input id="email" name="email" type="email" autocomplete="email" required>
+    <input id="email" name="person" type="text" placeholder="Your name" required>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" value="DO_NOT_CAPTURE_123" autocomplete="off">
+    <button type="submit">Register</button>
+  </form>
+  <script>
+    // FlowFault must block this POST originating from page JavaScript.
+    fetch('/unsafe-post', { method: 'POST', body: 'should-never-arrive' }).catch(() => {});
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+name: Bug report
+description: Report a reproducible FlowFault issue without including private data
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the expected and actual behavior.
+      placeholder: The CLI reported ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: macOS 15, Node.js 22, Chrome 130
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Use a local/public dummy fixture. Do not include tokens, private URLs or user information.
+    validations:
+      required: true
