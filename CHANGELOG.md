@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.2.0] - 2026-10-21
+
+### Added
+- Explicit `simulate` command with one-request network fault profiles: offline, latency and synthetic HTTP 503.
+- Safer scope: localhost by default; remote simulations require two deliberate flags and HTTPS.
+- Same-origin GET endpoint validation with no query strings or URL fragments.
+- Scenario-specific JSON and standalone HTML reports with privacy-preserving projections.
+- Repeatable local fixture tests for transport errors, delay and intercepted HTTP 503.
+- Dedicated offline Chrome CDP test, expanded CI, and scenario documentation.
+- Chrome detection for nonstandard macOS Desktop installations.
+
+### Preserved
+- The v0.1.0 `inspect` command and all existing diagnostic rule IDs.
+- No runtime npm dependencies, no form submissions, and no telemetry.
+
+### Limits
+- Simulations do not yet verify whether an application displays an error, retries, or recovers.
+- One explicitly chosen same-origin GET is faulted per isolated Chrome session.
+
 ## [0.1.0] - 2026-10-21
 
 ### Added

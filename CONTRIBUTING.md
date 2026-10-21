@@ -1,24 +1,34 @@
 # Contributing to FlowFault
 
-Thank you for considering a contribution. The goal is to keep findings reproducible and the CLI approachable.
+FlowFault favors observable browser behavior, small modules and reproducible evidence.
 
 ## Development
 
-- Node.js 22+ and Google Chrome or Chromium for browser integration tests.
-- Run `npm ci`, `npm test`, `npm run typecheck` and `npm run build`.
-- Run `npm run test:integration` when modifying browser or inspection behavior.
-- Prefer a small pull request that adds a regression test for each new rule.
+Requirements: Node.js 22+, Chrome or Chromium, and a local copy of this repository.
 
-## Issues and pull requests
+```bash
+npm ci
+npm test
+npm run typecheck
+npm run build
+npm run test:browser-offline
+npm run test:scenario-browser-offline
+npm run test:integration
+npm run test:scenarios
+```
 
-A good bug report includes the operating system, Node and Chrome versions, a *minimal public fixture* and the expected / actual output. Never paste passwords, tokens, cookies, private URLs or real application data into a public issue. Remove sensitive values before uploading reports.
+`typecheck` is dependency-free **JavaScript syntax validation**, not a TypeScript type checker. Local fixture integration needs a browser that permits loopback navigation.
 
-Use conventional commits such as `fix: handle missing form action` or `feat: add new form diagnostic`. Please discuss major features in an issue first.
+## Change requests
 
-## Rule design
+- Open focused pull requests with a regression test, documentation and an explanation of expected user impact.
+- Prefer standard Node.js modules over adding dependencies for simple capabilities.
+- Keep reports independent of external CDNs, script bundles and analytics.
+- Preserve stable JSON schema keys and rule IDs or describe migration decisions in the changelog.
+- Do not expand to form submission, credentials or production simulations without an explicit permission model and discussion.
+- Use fixture servers and synthetic data. Never commit session cookies, private URLs, customer records, or unredacted reports.
+- For browser changes, run both unit tests and real Chrome integration on a local staging fixture.
 
-Findings must have a unique code, severity, clear explanation, actionable recommendation and tests. Avoid claiming that a heuristic proves compliance, security, or successful delivery of emails; v0.1.0 only inspects the loaded page and form markup.
+## Community
 
-## Community expectations
-
-Be considerate, discuss code on its merits, avoid harassment and respect the privacy of people who use the tool. Maintainers can moderate issues and pull requests to keep technical discussions constructive.
+Use respectful technical discussion, make failures actionable, and never describe a heuristic as definitive proof of security, accessibility compliance, or workflow recovery.

@@ -7,10 +7,17 @@ export async function startFixtureServer() {
   const received = [];
   const server = createServer((request, response) => {
     received.push({ method: request.method, url: request.url });
-    if (request.url.startsWith('/')) {
-      response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
-      response.end(html);
+    if (request.url?.split('?')[0] === '/api/health') {
+      response.writeHead(200, { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store' });
+      response.end('{"status":"healthy"}\n');
+      return;
     }
+    if (request.url?.startsWith('/')) {
+      response.writeHead(200, { 'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-store' });
+      response.end(html);
+      return;
+    }
+    response.writeHead(404); response.end();
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   return {

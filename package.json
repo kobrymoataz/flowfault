@@ -1,7 +1,7 @@
 {
   "name": "flowfault",
-  "version": "0.1.0",
-  "description": "A privacy-conscious, read-only workflow form inspector for developers.",
+  "version": "0.2.0",
+  "description": "A privacy-conscious form inspector and controlled network fault simulator for developers.",
   "type": "module",
   "private": false,
   "license": "MIT",
@@ -23,7 +23,10 @@
     "check": "node scripts/check.mjs",
     "build": "node scripts/build.mjs",
     "demo": "node scripts/demo.mjs",
+    "demo:scenarios": "node scripts/scenario-demo.mjs",
     "test:integration": "node scripts/integration.mjs",
+    "test:scenarios": "node scripts/scenario-integration.mjs",
+    "test:scenario-browser-offline": "node scripts/scenario-offline-browser.mjs",
     "test:browser-offline": "node scripts/integration-offline.mjs"
   },
   "keywords": [
@@ -32,6 +35,8 @@
     "chrome-devtools-protocol",
     "testing",
     "website-inspection",
+    "fault-injection",
+    "network-testing",
     "open-source"
   ]
 }
