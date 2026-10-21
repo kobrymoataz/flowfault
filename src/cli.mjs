@@ -4,11 +4,12 @@ import { findChrome } from './lib/chrome.mjs';
 import { inspect } from './lib/inspect.mjs';
 import { analyze, hasFailingIssues } from './lib/analyze.mjs';
 import { makeReport, saveReports } from './lib/report.mjs';
+import { simulate } from './lib/simulate.mjs';
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.command === 'help') return console.log(HELP);
-  if (options.command === 'version') return console.log('0.1.0');
+  if (options.command === 'version') return console.log('0.2.0');
   if (options.command === 'doctor') {
     const chrome = await findChrome();
     console.log(`Node.js: ${process.version}`);
@@ -16,11 +17,20 @@ async function main() {
     if (!chrome) process.exitCode = 1;
     return;
   }
+  if (options.command === 'simulate') {
+    const probe = await simulate(options.scenario,options);
+    console.log(`\nFlowFault v0.2.0 | ${probe.scenario.publicPageUrl}`);
+    console.log(`Scenario: ${probe.scenario.profile} | endpoint: ${probe.scenario.endpoint}`);
+    console.log(`Observed: ${probe.observation.kind}${probe.observation.status == null ? '' : ` (HTTP ${probe.observation.status})`} in ${probe.observation.elapsedMs} ms`);
+    console.log(`Injection: ${probe.interceptionsApplied} | Blocked non-read requests: ${probe.blockedNonReadRequests}`);
+    console.log(probe.interpretation);
+    return;
+  }
   const snapshot = await inspect(options.url, options);
   const analysis = analyze(snapshot);
   const report = makeReport(snapshot, analysis);
   await saveReports(report, options);
-  console.log(`\nFlowFault v0.1.0 · ${report.scan.url}`);
+  console.log(`\nFlowFault v0.2.0 | ${report.scan.url}`);
   console.log(`Forms ${analysis.summary.forms}  Fields ${analysis.summary.fields}  Findings ${analysis.summary.issues}`);
   console.log(`Critical ${analysis.summary.critical}  Warning ${analysis.summary.warning}  Info ${analysis.summary.info}`);
   for (const issue of analysis.issues.slice(0, 12)) {

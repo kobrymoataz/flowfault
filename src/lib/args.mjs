@@ -1,59 +1,90 @@
 import { validateTarget } from './url.mjs';
+import { createScenario } from './scenario.mjs';
 
-export const HELP = `FlowFault v0.1.0 | read-only form reliability inspector
+export const HELP = `FlowFault v0.2.0 | form inspection and controlled GET fault simulation
 
 Usage:
   flowfault inspect <url> [options]
+  flowfault simulate <page-url> --endpoint /api/health --profile offline|latency|http-503 [options]
   flowfault doctor
   flowfault --version
 
-Options for inspect:
-  --json <file>           Save machine-readable JSON report
-  --html <file>           Save standalone HTML report
-  --timeout <ms>         Navigation timeout, 1000-60000 (default: 20000)
-  --wait <ms>            Extra DOM settling time, 0-10000 (default: 400)
-  --fail-on <level>      Exit 2 on warning or critical findings (default: none)
-  --chrome <path>        Chrome executable override
-  --help                 Show this help
+Inspect options:
+  --json <file>             Save JSON report
+  --html <file>             Save offline HTML report
+  --fail-on <level>        none|warning|critical (default: none)
+
+Shared options:
+  --timeout <ms>           Browser timeout, 1000-60000 (default: 20000)
+  --wait <ms>              DOM settling time, 0-10000 (inspect:400, simulate:300)
+  --chrome <path>          Chrome executable override
+
+Simulate options:
+  --endpoint <path>        One same-origin GET-only path without query or fragment
+  --profile <name>         offline | latency | http-503
+  --delay-ms <ms>          100-5000, latency only (default: 800)
+  --allow-remote           Opt in to non-loopback targets
+  --ack-staging            Confirm authority to test remote HTTPS staging
 
 Safety:
-  Only GET/HEAD browser requests are allowed. FlowFault does not fill,
-  click, or submit forms. Use only on sites you own or may inspect.
-  Query strings, passwords, cookies and field values are never stored.
+  Simulate defaults to loopback only. Remote requires BOTH consent flags.
+  No form submit, no POST/PUT/PATCH/DELETE, no cookies or field values.
+  Only one GET is faulted. This is not an end-to-end workflow recovery test.
 `;
 
 function integer(value, flag, min, max) {
   if (!/^\d+$/.test(value || '')) throw new Error(`${flag} requires an integer between ${min} and ${max}.`);
-  const result = Number(value);
-  if (result < min || result > max) throw new Error(`${flag} must be between ${min} and ${max}.`);
-  return result;
+  const number = Number(value);
+  if (number < min || number > max) throw new Error(`${flag} must be between ${min} and ${max}.`);
+  return number;
 }
 
 export function parseArgs(argv) {
-  if (!argv.length || argv.includes('--help') || argv[0] === 'help') return { command: 'help' };
-  if (argv[0] === '--version' || argv[0] === '-v') return { command: 'version' };
+  if (!argv.length || argv.includes('--help') || argv[0] === 'help') return { command:'help' };
+  if (argv[0] === '--version' || argv[0] === '-v') return { command:'version' };
   if (argv[0] === 'doctor') {
     if (argv.length !== 1) throw new Error('doctor takes no arguments.');
-    return { command: 'doctor' };
+    return { command:'doctor' };
   }
-  if (argv[0] !== 'inspect') throw new Error(`Unknown command: ${argv[0]}`);
-  if (!argv[1] || argv[1].startsWith('--')) throw new Error('inspect requires a URL.');
-  const options = { command: 'inspect', url: validateTarget(argv[1]), timeout: 20000, wait: 400, failOn: 'none' };
-  const flags = new Map([['--json', 'json'], ['--html', 'html'], ['--timeout', 'timeout'], ['--wait', 'wait'], ['--fail-on', 'failOn'], ['--chrome', 'chrome']]);
+  const command = argv[0];
+  if (command !== 'inspect' && command !== 'simulate') throw new Error(`Unknown command: ${command}`);
+  if (!argv[1] || argv[1].startsWith('--')) throw new Error(`${command} requires a page URL.`);
+  const result = { command, url:validateTarget(argv[1]), timeout:20000, wait:command === 'inspect' ? 400 : 300 };
+  if (command === 'inspect') result.failOn = 'none';
+  const pairs = new Map([
+    ['--timeout','timeout'],['--wait','wait'],['--chrome','chrome'],
+    ...(command === 'inspect' ? [['--json','json'],['--html','html'],['--fail-on','failOn']]
+      : [['--endpoint','endpoint'],['--profile','profile'],['--delay-ms','delayMs']])
+  ]);
+  const booleans = command === 'simulate' ? new Map([['--allow-remote','allowRemote'],['--ack-staging','ackStaging']]) : new Map();
   const seen = new Set();
-  for (let i = 2; i < argv.length; i += 2) {
-    const name = flags.get(argv[i]);
-    if (!name) throw new Error(`Unknown option: ${argv[i]}`);
-    const value = argv[i + 1];
-    if (!value || value.startsWith('--')) throw new Error(`Missing value after ${argv[i]}.`);
-    if (seen.has(name)) throw new Error(`Option ${argv[i]} is repeated.`);
-    seen.add(name);
-    options[name] = value;
-    if (name === 'timeout') options[name] = integer(value, '--timeout', 1000, 60000);
-    if (name === 'wait') options[name] = integer(value, '--wait', 0, 10000);
-    if (name === 'failOn' && !['none', 'warning', 'critical'].includes(value)) {
+  for (let i = 2; i < argv.length; i++) {
+    const flag = argv[i];
+    if (booleans.has(flag)) {
+      const key = booleans.get(flag);
+      if (seen.has(key)) throw new Error(`Option ${flag} is repeated.`);
+      result[key] = true;
+      seen.add(key);
+      continue;
+    }
+    const key = pairs.get(flag);
+    if (!key) throw new Error(`Unknown option: ${flag}`);
+    const value = argv[++i];
+    if (!value || value.startsWith('--')) throw new Error(`Missing value after ${flag}.`);
+    if (seen.has(key)) throw new Error(`Option ${flag} is repeated.`);
+    seen.add(key);
+    result[key] = value;
+    if (key === 'timeout') result[key] = integer(value, flag, 1000, 60000);
+    if (key === 'wait') result[key] = integer(value, flag, 0, 10000);
+    if (key === 'delayMs') result[key] = integer(value, flag, 100, 5000);
+    if (key === 'failOn' && !['none','warning','critical'].includes(value)) {
       throw new Error('--fail-on must be none, warning, or critical.');
     }
   }
-  return options;
+  if (command === 'simulate') {
+    if (seen.has('delayMs') && result.profile !== 'latency') throw new Error('--delay-ms is only available for the latency profile.');
+    if (!result.endpoint || !result.profile) throw new Error('simulate requires --endpoint and --profile.');
+    result.scenario = createScenario(result);
+  }
+  return result;
 }

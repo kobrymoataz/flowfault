@@ -13,6 +13,7 @@ export async function findChrome(explicit = process.env.FLOWFAULT_CHROME_PATH) {
     '/Applications/Chromium.app/Contents/MacOS/Chromium',
     '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
     join(homedir(), 'Applications/Google Chrome.app/Contents/MacOS/Google Chrome'),
+    join(homedir(), 'Desktop/Google Chrome.app/Contents/MacOS/Google Chrome'),
     '/usr/bin/google-chrome', '/usr/bin/google-chrome-stable',
     '/usr/bin/chromium', '/usr/bin/chromium-browser',
     '/opt/google/chrome/chrome'
