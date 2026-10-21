@@ -3,6 +3,7 @@ import { parseArgs, HELP } from './lib/args.mjs';
 import { findChrome } from './lib/chrome.mjs';
 import { inspect } from './lib/inspect.mjs';
 import { analyze, hasFailingIssues } from './lib/analyze.mjs';
+import { makeReport, saveReports } from './lib/report.mjs';
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
@@ -15,16 +16,23 @@ async function main() {
     if (!chrome) process.exitCode = 1;
     return;
   }
-  if (options.json || options.html) throw new Error('JSON and HTML exports become available in Stage 03.');
   const snapshot = await inspect(options.url, options);
-  const result = analyze(snapshot);
-  console.log(`FlowFault · ${snapshot.url}`);
-  console.log(`${result.summary.forms} forms / ${result.summary.fields} fields / ${result.summary.issues} findings`);
-  console.log(`${result.summary.critical} critical · ${result.summary.warning} warnings · ${result.summary.info} info`);
-  for (const issue of result.issues.slice(0, 12)) {
-    console.log(`  [${issue.severity.toUpperCase()}] ${issue.code} ${issue.title}`);
+  const analysis = analyze(snapshot);
+  const report = makeReport(snapshot, analysis);
+  await saveReports(report, options);
+  console.log(`\nFlowFault v0.1.0 · ${report.scan.url}`);
+  console.log(`Forms ${analysis.summary.forms}  Fields ${analysis.summary.fields}  Findings ${analysis.summary.issues}`);
+  console.log(`Critical ${analysis.summary.critical}  Warning ${analysis.summary.warning}  Info ${analysis.summary.info}`);
+  for (const issue of analysis.issues.slice(0, 12)) {
+    console.log(`  [${issue.severity.toUpperCase()}] ${issue.code} ${issue.title}${Number.isInteger(issue.formIndex) ? ` (form ${issue.formIndex + 1})` : ''}`);
   }
-  console.log(`Non-read requests blocked: ${snapshot.blockedRequests}`);
-  if (hasFailingIssues(result.issues, options.failOn)) process.exitCode = 2;
+  if (analysis.issues.length > 12) console.log(`  ... ${analysis.issues.length - 12} more in the report`);
+  console.log(`Non-GET/HEAD requests blocked: ${snapshot.blockedRequests}`);
+  if (options.json) console.log(`JSON: ${options.json}`);
+  if (options.html) console.log(`HTML: ${options.html}`);
+  if (hasFailingIssues(analysis.issues, options.failOn)) {
+    console.error(`Threshold reached: --fail-on ${options.failOn}`);
+    process.exitCode = 2;
+  }
 }
 main().catch(error => { console.error(`FlowFault error: ${error.message}`); process.exitCode = 1; });
