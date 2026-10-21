@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.0",
+  "tool": {
+    "name": "FlowFault",
+    "version": "0.3.0"
+  },
+  "scan": {
+    "url": "https://example.org/register",
+    "title": "Example registration \u00b7 updated",
+    "scannedAt": "2026-10-21T10:00:00.000Z",
+    "durationMs": 486,
+    "blockedNonReadRequests": 1,
+    "mode": "read-only",
+    "truncated": false,
+    "sample": true
+  },
+  "summary": {
+    "forms": 1,
+    "analyzedForms": 1,
+    "fields": 3,
+    "issues": 3,
+    "critical": 2,
+    "warning": 0,
+    "info": 1
+  },
+  "forms": [
+    {
+      "index": 0,
+      "id": "registration",
+      "method": "get",
+      "action": "https://example.org/register",
+      "submitControls": 1,
+      "totalFieldCount": 3,
+      "fields": [
+        {
+          "index": 0,
+          "tag": "input",
+          "type": "email",
+          "id": "email",
+          "name": "email",
+          "required": true,
+          "disabled": false,
+          "nameSource": "label",
+          "hasPlaceholder": false,
+          "autocomplete": "email"
+        },
+        {
+          "index": 1,
+          "tag": "input",
+          "type": "text",
+          "id": "email",
+          "name": "full_name",
+          "required": true,
+          "disabled": false,
+          "nameSource": "none",
+          "hasPlaceholder": true,
+          "autocomplete": ""
+        },
+        {
+          "index": 2,
+          "tag": "input",
+          "type": "password",
+          "id": "password",
+          "name": "password",
+          "required": true,
+          "disabled": false,
+          "nameSource": "label",
+          "hasPlaceholder": false,
+          "autocomplete": "off"
+        }
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "code": "FF201",
+      "severity": "critical",
+      "title": "Password form uses GET",
+      "detail": "A password field is present in a form with GET as its HTTP method.",
+      "recommendation": "Submit sensitive fields using POST over HTTPS; never place passwords in a URL.",
+      "formIndex": 0
+    },
+    {
+      "code": "FF203",
+      "severity": "info",
+      "title": "Password autocomplete disabled",
+      "detail": "This password field declares autocomplete=\"off\".",
+      "recommendation": "Consider using current-password or new-password to support password managers.",
+      "formIndex": 0,
+      "fieldIndex": 2
+    },
+    {
+      "code": "FF202",
+      "severity": "critical",
+      "title": "HTTPS form targets HTTP",
+      "detail": "Example finding added to demonstrate a comparison.",
+      "recommendation": "Use an HTTPS action endpoint.",
+      "formIndex": 0
+    }
+  ]
+}

@@ -15,7 +15,7 @@ const raw = {
 
 test('scenario report projects only safe fields and never retains query', () => {
   const report=makeScenarioReport(raw);
-  assert.equal(report.tool.version,'0.2.0');
+  assert.equal(report.tool.version,'0.3.0');
   assert.equal(report.experiment.page,'http://127.0.0.1:3000/register');
   assert.equal(report.observation.status,503);
   assert.ok(!JSON.stringify(report).includes('TOKEN_PRIVATE'));

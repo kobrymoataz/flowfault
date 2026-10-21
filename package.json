@@ -1,7 +1,7 @@
 {
   "name": "flowfault",
-  "version": "0.2.0",
-  "description": "A privacy-conscious form inspector and controlled network fault simulator for developers.",
+  "version": "0.3.0",
+  "description": "Local-first browser form inspection, controlled GET fault simulation, and offline report comparison.",
   "type": "module",
   "private": false,
   "license": "MIT",
@@ -27,7 +27,10 @@
     "test:integration": "node scripts/integration.mjs",
     "test:scenarios": "node scripts/scenario-integration.mjs",
     "test:scenario-browser-offline": "node scripts/scenario-offline-browser.mjs",
-    "test:browser-offline": "node scripts/integration-offline.mjs"
+    "test:browser-offline": "node scripts/integration-offline.mjs",
+    "dashboard": "node src/cli.mjs dashboard --port 4173",
+    "test:dashboard-browser-offline": "node scripts/dashboard-browser-offline.mjs",
+    "test:dashboard-integration": "node scripts/dashboard-integration.mjs"
   },
   "keywords": [
     "forms",
@@ -37,6 +40,9 @@
     "website-inspection",
     "fault-injection",
     "network-testing",
-    "open-source"
+    "open-source",
+    "report-comparison",
+    "dashboard",
+    "local-first"
   ]
 }

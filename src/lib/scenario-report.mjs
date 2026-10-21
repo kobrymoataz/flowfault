@@ -9,7 +9,7 @@ export function makeScenarioReport(probe) {
   const { scenario, observation } = probe;
   return {
     schemaVersion:'1.0',
-    tool:{name:'FlowFault',version:'0.2.0'},
+    tool:{name:'FlowFault',version:'0.3.0'},
     experiment:{
       page:scenario.publicPageUrl,
       endpoint:scenario.endpoint,

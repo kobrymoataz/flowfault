@@ -1,13 +1,23 @@
 import { validateTarget } from './url.mjs';
 import { createScenario } from './scenario.mjs';
 
-export const HELP = `FlowFault v0.2.0 | form inspection and controlled GET fault simulation
+export const HELP = `FlowFault v0.3.0 | form inspection and controlled GET fault simulation
 
 Usage:
   flowfault inspect <url> [options]
   flowfault simulate <page-url> --endpoint /api/health --profile offline|latency|http-503 [options]
+  flowfault compare <baseline.json> <current.json> [--json <file>] [--fail-on none|new-critical|any-new]
+  flowfault dashboard [--port 4173]
   flowfault doctor
   flowfault --version
+
+Dashboard:
+  --port <integer>        Bind to 127.0.0.1 only (default: 4173, use 0 for auto port)
+  Files are read only in the browser, with no server uploads.
+
+Compare options:
+  --json <file>           Save sanitized JSON comparison
+  --fail-on <level>       none | new-critical | any-new (default: none)
 
 Inspect options:
   --json <file>             Save JSON report
@@ -49,6 +59,31 @@ export function parseArgs(argv) {
     return { command:'doctor' };
   }
   const command = argv[0];
+  if (command === 'dashboard') {
+    const options = { command, port: 4173 };
+    if (argv.length === 1) return options;
+    if (argv.length !== 3 || argv[1] !== '--port') throw new Error('dashboard accepts only --port <number>.');
+    options.port = integer(argv[2], '--port', 0, 65535);
+    return options;
+  }
+  if (command === 'compare') {
+    if (!argv[1] || !argv[2] || argv[1].startsWith('--') || argv[2].startsWith('--')) {
+      throw new Error('compare requires two local JSON file paths: baseline and current.');
+    }
+    const options = { command, baseline: argv[1], current: argv[2], failOn: 'none' };
+    const seen = new Set();
+    for (let i = 3; i < argv.length; i++) {
+      const flag = argv[i];
+      if (!['--json','--fail-on'].includes(flag) || seen.has(flag)) throw new Error(`Unknown or repeated compare option: ${flag}`);
+      const value = argv[++i];
+      if (!value || value.startsWith('--')) throw new Error(`Missing value after ${flag}.`);
+      seen.add(flag);
+      if (flag === '--json') options.json = value;
+      else if (!['none','new-critical','any-new'].includes(value)) throw new Error('--fail-on must be none, new-critical or any-new.');
+      else options.failOn = value;
+    }
+    return options;
+  }
   if (command !== 'inspect' && command !== 'simulate') throw new Error(`Unknown command: ${command}`);
   if (!argv[1] || argv[1].startsWith('--')) throw new Error(`${command} requires a page URL.`);
   const result = { command, url:validateTarget(argv[1]), timeout:20000, wait:command === 'inspect' ? 400 : 300 };

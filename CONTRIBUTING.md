@@ -32,3 +32,9 @@ npm run test:scenarios
 ## Community
 
 Use respectful technical discussion, make failures actionable, and never describe a heuristic as definitive proof of security, accessibility compliance, or workflow recovery.
+
+## Dashboard contributions
+
+The v0.3.0 report model is shared between CLI and browser. Changes should preserve the `schemaVersion: 1.0` report contract and remain dependency-free. Keep all imported values as text nodes, never inject them into `innerHTML`. New HTTP routes must stay on an allowlist and reject writes.
+
+Verify with `npm test`, `npm run typecheck`, `npm run build`, `npm run test:dashboard-browser-offline` and, where Chrome permits localhost, `npm run test:dashboard-integration`.
