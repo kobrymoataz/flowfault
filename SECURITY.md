@@ -14,6 +14,14 @@ FlowFault is a **developer QA tool**, not a network sandbox, security certificat
 - No form controls are filled or submitted. No request headers, cookies, user input values, response bodies, URL queries or fragments are exported in reports.
 - FlowFault has no hosted service, third-party telemetry or analytics scripts.
 
+## Dashboard security boundaries
+
+- `dashboard` binds only to the IPv4 loopback interface `127.0.0.1`, verifies the Host header, and serves a fixed allowlist of GET/HEAD assets. POST and other write methods are rejected.
+- Import uses browser File API and a 2 MB size limit; report contents are never posted to the local server. There is no telemetry, cookie, or localStorage cache.
+- A strict Content Security Policy blocks remote scripts, frames and forms. Displayed findings use `textContent`, never untrusted HTML.
+- Exporting a comparison writes a locally downloaded JSON projection. Raw HTML reports may still contain identifying page paths and element names; review before sharing.
+- Other processes on the same computer can connect to localhost; this is a developer convenience, not a multi-user access-control boundary. Do not run a shared workstation session with confidential reports.
+
 ## Limitations and precautions
 
 - A GET request can still produce server-side effects on a poorly designed application, even when it is nominally read-only. **Use dedicated staging accounts and endpoints.** Do not probe login, logout, payment, account deletion or production endpoints.

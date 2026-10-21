@@ -12,7 +12,7 @@ import { startDashboard } from './lib/dashboard-server.mjs';
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   if (options.command === 'help') return console.log(HELP);
-  if (options.command === 'version') return console.log('0.2.0');
+  if (options.command === 'version') return console.log('0.3.0');
   if (options.command === 'doctor') {
     const chrome = await findChrome();
     console.log(`Node.js: ${process.version}`);
@@ -47,7 +47,7 @@ async function main() {
     const probe = await simulate(options.scenario,options);
     const report = makeScenarioReport(probe);
     await saveScenarioReports(report,options);
-    console.log(`\nFlowFault v0.2.0 | ${probe.scenario.publicPageUrl}`);
+    console.log(`\nFlowFault v0.3.0 | ${probe.scenario.publicPageUrl}`);
     console.log(`Scenario: ${probe.scenario.profile} | endpoint: ${probe.scenario.endpoint}`);
     console.log(`Observed: ${probe.observation.kind}${probe.observation.status == null ? '' : ` (HTTP ${probe.observation.status})`} in ${probe.observation.elapsedMs} ms`);
     console.log(`Injection: ${probe.interceptionsApplied} | Blocked non-read requests: ${probe.blockedNonReadRequests}`);
@@ -60,7 +60,7 @@ async function main() {
   const analysis = analyze(snapshot);
   const report = makeReport(snapshot, analysis);
   await saveReports(report, options);
-  console.log(`\nFlowFault v0.2.0 | ${report.scan.url}`);
+  console.log(`\nFlowFault v0.3.0 | ${report.scan.url}`);
   console.log(`Forms ${analysis.summary.forms}  Fields ${analysis.summary.fields}  Findings ${analysis.summary.issues}`);
   console.log(`Critical ${analysis.summary.critical}  Warning ${analysis.summary.warning}  Info ${analysis.summary.info}`);
   for (const issue of analysis.issues.slice(0, 12)) {

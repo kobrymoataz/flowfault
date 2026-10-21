@@ -1,7 +1,7 @@
 import { validateTarget } from './url.mjs';
 import { createScenario } from './scenario.mjs';
 
-export const HELP = `FlowFault v0.2.0 | form inspection and controlled GET fault simulation
+export const HELP = `FlowFault v0.3.0 | form inspection and controlled GET fault simulation
 
 Usage:
   flowfault inspect <url> [options]

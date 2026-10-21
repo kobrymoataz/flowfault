@@ -44,3 +44,7 @@ jobs:
           npm run test:scenarios
       - name: Local fixture scenario demo
         run: npm run demo:scenarios
+      - name: Dashboard browser smoke with no URL navigation
+        run: npm run test:dashboard-browser-offline
+      - name: Dashboard localhost end-to-end navigation
+        run: npm run test:dashboard-integration

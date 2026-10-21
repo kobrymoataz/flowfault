@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0] - 2026-10-21
+
+### Added
+- Local-only browser dashboard for imported JSON reports with no server uploads.
+- Inspection and scenario report normalization with bounded inputs and schema validation.
+- Rule/location-aware comparisons of new, resolved, persistent and severity-changed findings.
+- Comparable scenario observations showing status changes and elapsed-time deltas.
+- `flowfault compare` for local CLI comparisons, JSON export and optional new-finding exit thresholds.
+- `flowfault dashboard` and `npm run dashboard` for a restrained, responsive report workspace.
+- Dashboard browser smoke checks, localhost server controls, and example data clearly labeled as examples.
+
+### Boundaries
+- The dashboard does not submit forms, open target URLs, synchronize reports or provide trend forecasting.
+- Comparison identity relies on rule code and field location; DOM reordering may affect matches.
+- The static viewer does not claim that a network fault was handled by the tested application.
+
+
 ## [0.2.0] - 2026-10-21
 
 ### Added

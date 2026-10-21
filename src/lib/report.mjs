@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 export function makeReport(snapshot, analysis) {
   return {
     schemaVersion: '1.0',
-    tool: { name: 'FlowFault', version: '0.2.0' },
+    tool: { name: 'FlowFault', version: '0.3.0' },
     scan: {
       url: snapshot.url,
       title: snapshot.title,
@@ -42,7 +42,7 @@ export function renderHtml(report) {
       <h3>${e(item.title)}</h3></div><span class="pill ${safeClass(item.severity)}">${e(item.severity)}</span></div>
       <p>${e(item.detail)}</p><div class="fix"><strong>RECOMMENDATION</strong><span>${e(item.recommendation)}</span></div>
       ${Number.isInteger(item.formIndex) ? `<div class="location mono">Form ${item.formIndex + 1}${Number.isInteger(item.fieldIndex) ? ` · Field ${item.fieldIndex + 1}` : ''}</div>` : ''}
-    </article>`).join('') : '<div class="empty">No findings from the rules available in v0.2.0. This is not a compliance certification.</div>';
+    </article>`).join('') : '<div class="empty">No findings from the rules available in v0.3.0. This is not a compliance certification.</div>';
   return `<!doctype html>
 <html lang="en">
 <head>

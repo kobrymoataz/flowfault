@@ -5,15 +5,31 @@
 [![Verify](https://github.com/kobrymoataz/flowfault/actions/workflows/ci.yml/badge.svg)](https://github.com/kobrymoataz/flowfault/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-informational.svg)](LICENSE)
 
-FlowFault is an open-source, local-first developer CLI for inspecting HTML forms and running **controlled, one-request network failure experiments**. Its reports explain what Chrome observed, not what an AI guesses. It uses Node.js 22+, Chrome DevTools Protocol, and no runtime npm dependencies.
+FlowFault is an open-source, local-first developer toolkit for inspecting HTML forms and running **controlled, one-request network failure experiments**. Its reports use deterministic findings and explicit browser observations. It uses Node.js 22+, Chrome DevTools Protocol, and no runtime npm dependencies.
 
-## Two workflows
+## Three workflows
 
 **Inspect.** Detect unlabelled form fields, duplicate IDs, GET password forms and risky form actions in an isolated headless Chrome session. Export rule-based JSON and standalone HTML.
 
 **Simulate.** Choose a same-origin GET endpoint and inject exactly one `offline`, `http-503` or `latency` fault. Observe transport results from Chrome without submitting forms. Simulations default to loopback and require explicit authorization flags for remote HTTPS staging.
 
-> v0.2.0 does not validate application UI recovery, automatic retries, multi-step submissions, email delivery or the complete website. It does not provide network-wide isolation.
+**Dashboard.** Load two FlowFault JSON reports in a local browser workspace. Review critical findings, filter diagnostic evidence, compare new/resolved issues, and export a sanitized comparison file. No uploads, accounts, third-party scripts or runtime npm dependencies.
+
+> v0.3.0 does not validate application UI recovery, automatic retries, multi-step submissions, email delivery or the complete website. It does not provide network-wide isolation.
+
+## Local report workspace
+
+```bash
+npm ci && npm test && npm run build
+npm run dashboard
+# Open http://127.0.0.1:4173/ in your browser
+```
+
+The interface initially loads **clearly labeled example data**. Use **Import current report** and **Import baseline** to select your own JSON files. Files are parsed in the browser tab, not sent to the local HTTP server. The listener binds to `127.0.0.1` only. See [workspace guide](docs/workspace.md).
+
+<img src="docs/assets/dashboard-preview.png" width="900" alt="Local FlowFault comparison workspace showing example registration reports and two side-by-side sources">
+
+The screenshot uses synthetic example reports, not a live website scan.
 
 ## Example outputs
 
@@ -57,6 +73,15 @@ node dist/cli.mjs simulate http://127.0.0.1:3000/register \
 
 The new command also accepts `--profile offline` and `--profile http-503`. Remote HTTPS staging is disabled by default and requires **both** `--allow-remote` and `--ack-staging`. Only test endpoints you are authorized to use. See [scenario usage](docs/scenarios.md).
 
+Compare two runs without a browser:
+
+```bash
+node dist/cli.mjs compare reports/before.json reports/after.json \
+  --json reports/comparison.json --fail-on new-critical
+```
+
+This command exits with code `2` when new critical findings are introduced. Matching inspections require the same sanitized target URL. Scenario comparisons require the same target, endpoint and profile. See [comparison details](docs/workspace.md).
+
 ## CLI reference
 
 ```text
@@ -70,6 +95,9 @@ flowfault simulate <page-url> --endpoint /api/health
                        [--allow-remote --ack-staging]
                        [--timeout 20000] [--wait 300] [--chrome <path>]
 
+flowfault compare <baseline.json> <current.json>
+                  [--json <comparison.json>] [--fail-on none|new-critical|any-new]
+flowfault dashboard [--port 4173]
 flowfault doctor
 flowfault --version
 ```
@@ -86,7 +114,9 @@ Or use `--chrome "/absolute/path/to/Google Chrome"`. Recent macOS versions may r
 
 ## Report and privacy guarantees
 
-- No account required, no server uploads or telemetry.
+- No account required, no server uploads or telemetry. The dashboard only serves a local static UI and sample JSON.
+- Imported report files are parsed in browser memory using the File API; the server does not accept POST requests.
+- Comparison JSON is a whitelisted projection, excluding issue details; URL paths, rule IDs and titles can still be identifying.
 - Reports omit input values, passwords, cookies, request/response bodies, sensitive URL queries and fragments.
 - Scenario JSON reports include `experiment`, `delivery`, `observation`, `interpretation`, and `limitations`.
 - HTML output is self-contained, with CSP and no JavaScript or external assets.
@@ -103,6 +133,8 @@ npm run test:browser-offline      # DOM collection in Chrome about:blank
 npm run test:scenario-browser-offline # CDP injection from about:blank
 npm run test:integration         # v0.1 fixture with local HTTP server
 npm run test:scenarios           # v0.2 real local GET fault scenarios
+npm run test:dashboard-browser-offline # real Chrome UI, stubbed local samples
+npm run test:dashboard-integration    # served dashboard in Chrome on localhost
 ```
 
 CI runs the same tests on GitHub Actions. Managed browser policies may disallow loopback navigation; those tests will fail and should not be reported as passed.
@@ -110,6 +142,10 @@ CI runs the same tests on GitHub Actions. Managed browser policies may disallow 
 ## Architecture
 
 ```text
+src/lib/report-model.mjs      Browser-safe schema and comparison logic
+src/lib/report-files.mjs      CLI JSON loading, safe export and fail-on rules
+src/lib/dashboard-server.mjs  Localhost-only GET/HEAD static file server
+src/dashboard/               Local UI, styles and bundled sample reports
 src/lib/scenario.mjs          Scenario validation and URL policy
 src/lib/network.mjs           Read-only request interception plus one fault
 src/lib/simulate.mjs          Chrome GET probe and observations
@@ -120,13 +156,13 @@ src/lib/report.mjs            Existing form reports
 scripts/                      Local fixtures and repeatable demos
 ```
 
-See [architecture](docs/architecture.md), [security](SECURITY.md), [contributing](CONTRIBUTING.md), and [release notes](docs/release-v0.2.0.md).
+See [architecture](docs/architecture.md), [security](SECURITY.md), [contributing](CONTRIBUTING.md), and [release notes](docs/release-v0.3.0.md).
 
 ## Roadmap
 
 - **v0.1.0:** form inspection and rule-based reports. Shipped.
 - **v0.2.0:** controlled one-request GET faults and scenario reports. Shipped.
-- **v0.3.0:** comparison dashboard for local runs. Planned.
+- **v0.3.0:** read-only report dashboard and deterministic comparison. Shipped.
 - **v0.4.0:** permissioned retry / duplicate-submit fixtures. Planned.
 - **v0.5.0:** opt-in workflow event tracing. Planned.
 - **v1.0.0:** stable API and documented plugin lifecycle. Planned.

@@ -1,4 +1,4 @@
-# FlowFault v0.2.0 architecture
+# FlowFault v0.3.0 architecture
 
 FlowFault is a deliberately small, zero-runtime-dependency Node.js ESM CLI.
 
@@ -34,3 +34,13 @@ CDP interception affects one Chrome page target; background traffic and side eff
 - `test:scenario-browser-offline` exercises real Chrome CDP injections from about:blank, without navigating to an HTTP page. Its synthetic HTTP 503 is not used to prove a same-origin JS response because of browser CORS.
 - `test:scenarios` runs real GET probes against a local fixture to assert disconnection, synthetic 503, delayed 200, write-method rejection and no extra origin GET. It requires browser permission to navigate to localhost.
 - CI runs the same checks on its Ubuntu runner with an installed browser.
+
+## Report workspace path
+
+`File API JSON -> browser-safe report normalization -> deterministic finding comparison -> DOM text nodes / local JSON export`
+
+The CLI uses the same `src/lib/report-model.mjs` for pure schema projection and comparison in Node. `src/lib/report-files.mjs` imposes a 2 MB file limit and refuses to overwrite comparison inputs. `src/lib/dashboard-server.mjs` is only a localhost static asset listener; it never receives a selected JSON file.
+
+`src/dashboard/app.mjs` is a native ECMAScript module with zero external frontend dependencies. It uses File API, in-memory state and safe DOM text nodes. It can filter evidence, show observation deltas and download a whitelisted JSON comparison. Its built-in sample reports are demonstrative, not scans of a target.
+
+The dashboard has an offline Chrome UI smoke test (the page and sources are inserted into about:blank with bundled fixture fetches) and a separate full browser integration test for actual localhost navigation. Both must be distinguished in verification reporting.
