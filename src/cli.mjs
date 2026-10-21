@@ -7,6 +7,7 @@ import { makeReport, saveReports } from './lib/report.mjs';
 import { simulate } from './lib/simulate.mjs';
 import { makeScenarioReport, saveScenarioReports } from './lib/scenario-report.mjs';
 import { compareReportFiles, shouldFailComparison } from './lib/report-files.mjs';
+import { startDashboard } from './lib/dashboard-server.mjs';
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
@@ -17,6 +18,12 @@ async function main() {
     console.log(`Node.js: ${process.version}`);
     console.log(`Chrome: ${chrome || 'NOT FOUND'}`);
     if (!chrome) process.exitCode = 1;
+    return;
+  }
+  if (options.command === 'dashboard') {
+    const instance = await startDashboard({ port: options.port });
+    console.log(`FlowFault dashboard is ready at ${instance.url}`);
+    console.log('Open this address in a browser. Files remain in this browser tab. Press Control+C to stop.');
     return;
   }
   if (options.command === 'compare') {

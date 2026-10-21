@@ -27,7 +27,10 @@
     "test:integration": "node scripts/integration.mjs",
     "test:scenarios": "node scripts/scenario-integration.mjs",
     "test:scenario-browser-offline": "node scripts/scenario-offline-browser.mjs",
-    "test:browser-offline": "node scripts/integration-offline.mjs"
+    "test:browser-offline": "node scripts/integration-offline.mjs",
+    "dashboard": "node src/cli.mjs dashboard --port 4173",
+    "test:dashboard-browser-offline": "node scripts/dashboard-browser-offline.mjs",
+    "test:dashboard-integration": "node scripts/dashboard-integration.mjs"
   },
   "keywords": [
     "forms",

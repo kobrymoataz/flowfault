@@ -7,8 +7,13 @@ Usage:
   flowfault inspect <url> [options]
   flowfault simulate <page-url> --endpoint /api/health --profile offline|latency|http-503 [options]
   flowfault compare <baseline.json> <current.json> [--json <file>] [--fail-on none|new-critical|any-new]
+  flowfault dashboard [--port 4173]
   flowfault doctor
   flowfault --version
+
+Dashboard:
+  --port <integer>        Bind to 127.0.0.1 only (default: 4173, use 0 for auto port)
+  Files are read only in the browser, with no server uploads.
 
 Compare options:
   --json <file>           Save sanitized JSON comparison
@@ -54,6 +59,13 @@ export function parseArgs(argv) {
     return { command:'doctor' };
   }
   const command = argv[0];
+  if (command === 'dashboard') {
+    const options = { command, port: 4173 };
+    if (argv.length === 1) return options;
+    if (argv.length !== 3 || argv[1] !== '--port') throw new Error('dashboard accepts only --port <number>.');
+    options.port = integer(argv[2], '--port', 0, 65535);
+    return options;
+  }
   if (command === 'compare') {
     if (!argv[1] || !argv[2] || argv[1].startsWith('--') || argv[2].startsWith('--')) {
       throw new Error('compare requires two local JSON file paths: baseline and current.');

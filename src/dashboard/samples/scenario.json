@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0",
+  "tool": {
+    "name": "FlowFault",
+    "version": "0.3.0"
+  },
+  "experiment": {
+    "page": "http://127.0.0.1:3000/register",
+    "endpoint": "/api/health",
+    "profile": "http-503",
+    "scope": "loopback",
+    "configuredDelayMs": 0,
+    "executedAt": "2026-10-21T00:00:00.000Z",
+    "mode": "controlled-read-only-get-probe",
+    "sample": true
+  },
+  "delivery": {
+    "interceptionsApplied": 1,
+    "blockedNonReadRequests": 1
+  },
+  "observation": {
+    "kind": "http-response",
+    "status": 503,
+    "ok": false,
+    "elapsedMs": 38
+  },
+  "durationMs": 410,
+  "interpretation": "Browser received a synthetic HTTP 503 response. No 503 request was sent to the origin.",
+  "limitations": [
+    "This tests a single GET transport observation, not the application error UI, automatic retry, or end-to-end recovery.",
+    "CDP interception covers the inspected page target; it is not a network sandbox.",
+    "GET requests may still affect remote services. Use only authorized staging environments.",
+    "No form was filled or submitted and no cookies, headers, request bodies, response bodies, field values, or URL queries are saved."
+  ]
+}

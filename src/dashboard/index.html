@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101416">
+  <meta name="description" content="FlowFault local report workspace. Compare read-only inspections and controlled GET experiments without uploading JSON reports.">
+  <title>FlowFault | Report workspace</title>
+  <link rel="stylesheet" href="/assets/site.css">
+  <script type="module" src="/assets/app.mjs"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" aria-label="Sidebar">
+      <div class="identity"><div class="logo" aria-hidden="true">F<span>.</span></div><div><strong>FlowFault</strong><small>Developer toolkit</small></div></div>
+      <div class="side-label">Workspace</div>
+      <nav class="nav" aria-label="Workspace sections">
+        <a class="nav-link current" href="#overview"><span class="nav-no">01</span> Overview</a>
+        <a class="nav-link" href="#findings"><span class="nav-no">02</span> Findings</a>
+        <a class="nav-link" href="#comparison"><span class="nav-no">03</span> Comparison</a>
+        <a class="nav-link" href="#method"><span class="nav-no">04</span> Method</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="state-dot">Local environment</div>
+        <p>Report files are processed inside this browser tab. No upload endpoints or third-party scripts.</p>
+        <div class="build-line">FLOWFAULT <span>0.3.0</span></div>
+      </div>
+    </aside>
+    <div class="surface">
+      <header class="topbar"><span>TOOLS <span class="slash">/</span> REPORT WORKSPACE</span><span class="server-status"><span class="pulse"></span> LOCAL SESSION</span></header>
+      <main id="overview" class="main">
+        <section class="intro" aria-labelledby="page-title">
+          <div class="eyebrow">RELIABILITY REPORTS <span class="eyebrow-rule"></span> RELEASE 0.3</div>
+          <div class="intro-grid"><div><h1 id="page-title">Evidence before<br>assumptions<span class="period">.</span></h1><p>Review inspections, inspect the evidence, and compare changes between two runs. Your report data stays on this machine.</p></div>
+            <div class="intro-actions">
+              <label for="current-file" class="button button-primary">+ Import current report</label>
+              <input id="current-file" class="file-input" type="file" accept=".json,application/json">
+              <label for="baseline-file" class="button button-outline">Import baseline</label>
+              <input id="baseline-file" class="file-input" type="file" accept=".json,application/json">
+            </div></div>
+        </section>
+        <div id="error" class="alert" role="alert" hidden></div>
+        <section class="demo-banner" id="sample-banner" aria-label="Data status"><div><span class="mini-label">EXAMPLE DATA</span><span id="sample-message">Loaded example reports for demonstration. Import your own files to inspect real results.</span></div><div class="example-links"><button id="example-scan" type="button">Scan example</button><button id="example-scenario" type="button">Scenario example</button><button id="clear-all" type="button">Clear</button></div></section>
+        <section class="section report-sources" aria-labelledby="source-title">
+          <div class="section-heading"><div><div class="eyebrow">01 / SOURCE</div><h2 id="source-title">Loaded evidence</h2></div><button class="link-button" id="reset-examples" type="button">Reset examples ↗</button></div>
+          <div class="source-grid"><div class="source-card"><div class="source-heading"><span>PRIMARY REPORT</span><span class="source-number">A</span></div><strong id="current-title">No report selected</strong><div id="current-meta" class="source-meta">Select a JSON inspection or scenario report</div><div id="current-target" class="source-target">No local file loaded</div></div><div class="source-card secondary"><div class="source-heading"><span>BASELINE REPORT</span><span class="source-number">B</span></div><strong id="baseline-title">Optional baseline</strong><div id="baseline-meta" class="source-meta">Import a previous run to compare</div><div id="baseline-target" class="source-target">No local file loaded</div></div></div>
+        </section>
+        <section class="section" aria-labelledby="overview-title">
+          <div class="section-heading"><div><div class="eyebrow">02 / SNAPSHOT</div><h2 id="overview-title">At a glance</h2></div><div id="report-type" class="version-tag">NO REPORT</div></div>
+          <div id="stat-grid" class="stat-grid" aria-live="polite"></div>
+          <div class="data-grid"><section class="panel" id="distribution-panel" aria-labelledby="distribution-title"><div class="panel-head"><h3 id="distribution-title">Severity distribution</h3><span class="panel-code">CURRENT RUN</span></div><div id="distribution" class="bars"></div></section>
+          <section class="panel" id="insight-panel" aria-labelledby="insight-title"><div class="panel-head"><h3 id="insight-title">Comparison summary</h3><span class="panel-code">BASELINE vs CURRENT</span></div><div id="insights" class="insights"></div></section></div>
+        </section>
+        <section class="section" id="findings" aria-labelledby="findings-title"><div class="section-heading"><div><div class="eyebrow">03 / DIAGNOSTICS</div><h2 id="findings-title">Findings</h2></div><span class="section-aside" id="finding-count">0 visible findings</span></div>
+          <div id="filters" class="filter-row"><label class="search-label"><span>SEARCH</span><input type="search" id="finding-search" placeholder="Code, title, recommendation" autocomplete="off"></label><label class="filter-label"><span>SEVERITY</span><select id="severity-filter"><option value="all">All severities</option><option value="critical">Critical</option><option value="warning">Warning</option><option value="info">Info</option></select></label></div>
+          <div id="finding-list" class="findings-list"></div>
+        </section>
+        <section class="section" id="comparison" aria-labelledby="comparison-title"><div class="section-heading"><div><div class="eyebrow">04 / DELTA</div><h2 id="comparison-title">Change detail</h2></div><button id="export-comparison" type="button" class="button button-small" disabled>Export comparison JSON</button></div><div class="panel comparison-panel" id="comparison-detail"></div></section>
+        <section class="section method" id="method" aria-labelledby="method-title"><div class="section-heading"><div><div class="eyebrow">05 / OPERATING BOUNDARY</div><h2 id="method-title">How to read these results</h2></div></div><div class="method-grid"><p><strong>Report-based, not live monitoring.</strong> The workspace loads JSON reports you select. It does not rescan web pages, submit forms or simulate requests.</p><p><strong>Comparable runs only.</strong> Inspection comparisons require the same page. Scenario comparisons require the same page, endpoint and fault profile.</p><p><strong>Locally processed.</strong> Your browser parses file contents in memory. Nothing is uploaded, saved in localStorage or sent to a remote server.</p></div></section>
+      </main>
+      <footer class="footer"><span>FlowFault 0.3.0 · Open source testing tools</span><span>Local-first report workspace · <a href="https://github.com/kobrymoataz/flowfault" rel="noopener noreferrer" target="_blank">GitHub repository</a></span></footer>
+    </div>
+  </div>
+</body>
+</html>
