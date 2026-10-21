@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "1.0",
+  "tool": {
+    "name": "FlowFault",
+    "version": "0.1.0"
+  },
+  "scan": {
+    "url": "https://example.org/register",
+    "title": "Sample registration",
+    "scannedAt": "2026-10-21T09:00:00.000Z",
+    "durationMs": 486,
+    "blockedNonReadRequests": 1,
+    "mode": "read-only",
+    "truncated": false,
+    "sample": true
+  },
+  "summary": {
+    "forms": 1,
+    "analyzedForms": 1,
+    "fields": 3,
+    "issues": 4,
+    "critical": 1,
+    "warning": 2,
+    "info": 1
+  },
+  "forms": [
+    {
+      "index": 0,
+      "id": "registration",
+      "method": "get",
+      "action": "https://example.org/register",
+      "submitControls": 1,
+      "totalFieldCount": 3,
+      "fields": [
+        {
+          "index": 0,
+          "tag": "input",
+          "type": "email",
+          "id": "email",
+          "name": "email",
+          "required": true,
+          "disabled": false,
+          "nameSource": "label",
+          "hasPlaceholder": false,
+          "autocomplete": "email"
+        },
+        {
+          "index": 1,
+          "tag": "input",
+          "type": "text",
+          "id": "email",
+          "name": "full_name",
+          "required": true,
+          "disabled": false,
+          "nameSource": "none",
+          "hasPlaceholder": true,
+          "autocomplete": ""
+        },
+        {
+          "index": 2,
+          "tag": "input",
+          "type": "password",
+          "id": "password",
+          "name": "password",
+          "required": true,
+          "disabled": false,
+          "nameSource": "label",
+          "hasPlaceholder": false,
+          "autocomplete": "off"
+        }
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "code": "FF110",
+      "severity": "warning",
+      "title": "Duplicate HTML id",
+      "detail": "The id \"email\" occurs 2 times.",
+      "recommendation": "Give each element a unique id, especially controls associated with labels."
+    },
+    {
+      "code": "FF201",
+      "severity": "critical",
+      "title": "Password form uses GET",
+      "detail": "A password field is present in a form with GET as its HTTP method.",
+      "recommendation": "Submit sensitive fields using POST over HTTPS; never place passwords in a URL.",
+      "formIndex": 0
+    },
+    {
+      "code": "FF101",
+      "severity": "warning",
+      "title": "Form control has no accessible name",
+      "detail": "The text control #email has no associated label, aria-label, aria-labelledby or title.",
+      "recommendation": "Add a visible <label> linked to the control, or another valid accessible name.",
+      "formIndex": 0,
+      "fieldIndex": 1
+    },
+    {
+      "code": "FF203",
+      "severity": "info",
+      "title": "Password autocomplete disabled",
+      "detail": "This password field declares autocomplete=\"off\".",
+      "recommendation": "Consider using current-password or new-password to support password managers.",
+      "formIndex": 0,
+      "fieldIndex": 2
+    }
+  ]
+}
