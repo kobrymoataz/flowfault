@@ -23,6 +23,8 @@ Simulate options:
   --endpoint <path>        One same-origin GET-only path without query or fragment
   --profile <name>         offline | latency | http-503
   --delay-ms <ms>          100-5000, latency only (default: 800)
+  --json <file>            Save sanitized scenario JSON
+  --html <file>            Save standalone scenario HTML
   --allow-remote           Opt in to non-loopback targets
   --ack-staging            Confirm authority to test remote HTTPS staging
 
@@ -54,7 +56,7 @@ export function parseArgs(argv) {
   const pairs = new Map([
     ['--timeout','timeout'],['--wait','wait'],['--chrome','chrome'],
     ...(command === 'inspect' ? [['--json','json'],['--html','html'],['--fail-on','failOn']]
-      : [['--endpoint','endpoint'],['--profile','profile'],['--delay-ms','delayMs']])
+      : [['--endpoint','endpoint'],['--profile','profile'],['--delay-ms','delayMs'],['--json','json'],['--html','html']])
   ]);
   const booleans = command === 'simulate' ? new Map([['--allow-remote','allowRemote'],['--ack-staging','ackStaging']]) : new Map();
   const seen = new Set();

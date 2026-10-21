@@ -23,6 +23,7 @@
     "check": "node scripts/check.mjs",
     "build": "node scripts/build.mjs",
     "demo": "node scripts/demo.mjs",
+    "demo:scenarios": "node scripts/scenario-demo.mjs",
     "test:integration": "node scripts/integration.mjs",
     "test:scenarios": "node scripts/scenario-integration.mjs",
     "test:browser-offline": "node scripts/integration-offline.mjs"

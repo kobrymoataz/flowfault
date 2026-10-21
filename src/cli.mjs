@@ -5,6 +5,7 @@ import { inspect } from './lib/inspect.mjs';
 import { analyze, hasFailingIssues } from './lib/analyze.mjs';
 import { makeReport, saveReports } from './lib/report.mjs';
 import { simulate } from './lib/simulate.mjs';
+import { makeScenarioReport, saveScenarioReports } from './lib/scenario-report.mjs';
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
@@ -19,11 +20,15 @@ async function main() {
   }
   if (options.command === 'simulate') {
     const probe = await simulate(options.scenario,options);
+    const report = makeScenarioReport(probe);
+    await saveScenarioReports(report,options);
     console.log(`\nFlowFault v0.2.0 | ${probe.scenario.publicPageUrl}`);
     console.log(`Scenario: ${probe.scenario.profile} | endpoint: ${probe.scenario.endpoint}`);
     console.log(`Observed: ${probe.observation.kind}${probe.observation.status == null ? '' : ` (HTTP ${probe.observation.status})`} in ${probe.observation.elapsedMs} ms`);
     console.log(`Injection: ${probe.interceptionsApplied} | Blocked non-read requests: ${probe.blockedNonReadRequests}`);
     console.log(probe.interpretation);
+    if(options.json) console.log(`JSON: ${options.json}`);
+    if(options.html) console.log(`HTML: ${options.html}`);
     return;
   }
   const snapshot = await inspect(options.url, options);
