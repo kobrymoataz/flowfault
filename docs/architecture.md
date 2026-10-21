@@ -1,13 +1,36 @@
-# Architecture in v0.1.0
+# FlowFault v0.2.0 architecture
 
-FlowFault uses an intentionally small ESM codebase with no runtime npm dependencies.
+FlowFault is a deliberately small, zero-runtime-dependency Node.js ESM CLI.
 
-1. **CLI** validates the command and URL. Only `http:` and `https:` targets without embedded credentials are accepted.
-2. **Chrome launcher** selects an installed Chrome / Chromium binary and creates a fresh disposable profile.
-3. **CDP bridge** connects to the page target's DevTools WebSocket. The request guard intercepts the page target's requests and continues GET/HEAD while rejecting non-read HTTP methods. This is a defense-in-depth behavior, not an independent guarantee of network safety.
-4. **DOM collector** inventories HTML forms in the loaded document. It intentionally does not read form control `value`, cookies, local storage, or page HTML.
-5. **Sanitizer** strips URL queries, fragments and credentials and constrains field IDs and names.
-6. **Rule engine** produces stable rule identifiers and actionable output with transparent severity.
-7. **Report renderer** produces JSON and a no-script, CSP-constrained HTML document with HTML-escaped dynamic content.
+## Inspection path
 
-Limitations include snapshot timing, lack of shadow DOM traversal, no cross-page workflows, no authentication helpers, and no network assertion that a backend has actually performed a task. Those will require a carefully designed permission model before later releases.
+`CLI -> Chrome launcher -> CDP request guard -> DOM collector -> sanitizer -> rule engine -> report renderer`
+
+The existing `inspect` command remains read-only. It inventories form structure, strips URL query strings and produces JSON and HTML reports. HTTP request methods other than GET/HEAD are blocked on the CDP page target, not at the operating system level.
+
+## Controlled scenario path
+
+`CLI -> scenario validation -> isolated Chrome -> guarded page navigation -> arm one fault -> GET probe -> observation -> report projection`
+
+`src/lib/scenario.mjs` enforces loopback by default, requires two affirmative options for HTTPS staging, validates an exact same-origin query-free endpoint and bounds latency at 100-5000 ms.
+
+`src/lib/network.mjs` continues GET/HEAD and blocks all non-read methods. Once armed, at most one matching GET is changed:
+
+- **offline:** CDP `Fetch.failRequest` with `InternetDisconnected`.
+- **http-503:** CDP `Fetch.fulfillRequest` with synthetic 503 JSON response; it does not reach the origin.
+- **latency:** wait for the selected duration before CDP `Fetch.continueRequest`; the origin receives one GET.
+
+`src/lib/simulate.mjs` launches a new browser, navigates to the selected page, arms the guard, then executes one explicit credential-free browser `fetch()` with redirected requests rejected. It captures status / error type and elapsed time, with no response body inspection. The interception must be applied exactly once to count the experiment as valid.
+
+`src/lib/scenario-report.mjs` creates a whitelisted public report shape and no-script HTML, separate from internal scenario objects that temporarily contain full navigational URLs. Report projection excludes URL query strings, credentials, headers, bodies, cookies and form values.
+
+## Important boundaries
+
+CDP interception affects one Chrome page target; background traffic and side effects from GET are not globally prohibited. This is not a sandbox. Fault injection is **not** a claim that an application correctly handles errors or retries. A future version could observe UI behaviors, but that requires explicit workflow fixtures and a different consent model.
+
+## Testing
+
+- `npm test` covers pure rules, argument validation, interception decisions and report output.
+- `test:scenario-browser-offline` exercises real Chrome CDP injections from about:blank, without navigating to an HTTP page. Its synthetic HTTP 503 is not used to prove a same-origin JS response because of browser CORS.
+- `test:scenarios` runs real GET probes against a local fixture to assert disconnection, synthetic 503, delayed 200, write-method rejection and no extra origin GET. It requires browser permission to navigate to localhost.
+- CI runs the same checks on its Ubuntu runner with an installed browser.

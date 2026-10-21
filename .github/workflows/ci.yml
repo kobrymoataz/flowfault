@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - name: Install dependency-free project
+      - name: Install project
         run: npm ci
       - name: Unit tests
         run: npm test
@@ -30,3 +30,17 @@ jobs:
         run: npm run build
       - name: Smoke test CLI
         run: node dist/cli.mjs --help
+      - name: Check installed Chrome
+        run: |
+          command -v google-chrome || command -v chromium || command -v chromium-browser
+          node dist/cli.mjs doctor
+      - name: Browser test without network navigation
+        run: |
+          npm run test:browser-offline
+          npm run test:scenario-browser-offline
+      - name: Local fixture integration
+        run: |
+          npm run test:integration
+          npm run test:scenarios
+      - name: Local fixture scenario demo
+        run: npm run demo:scenarios

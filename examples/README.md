@@ -1,5 +1,6 @@
-# Sample report
+# FlowFault examples
 
-`sample-report.json` and `sample-report.html` show **synthetic example data**, not an audit of a real organization or production website. Open the HTML file locally to explore the report design without installing Chrome or running a scan.
+- `sample-report.html` and `.json`: synthetic sample from the passive form inspector.
+- `scenario-report.html` and `.json`: **synthetic** sample from the v0.2.0 controlled simulation renderer.
 
-Use `npm run demo` for a fresh report from a local test server on an unrestricted Chrome installation.
+The examples are not scans of a real application or evidence of a production failure. Run `npm run demo:scenarios` locally to generate real browser observations from an isolated fixture.
