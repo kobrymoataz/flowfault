@@ -26,6 +26,7 @@
     "demo:scenarios": "node scripts/scenario-demo.mjs",
     "test:integration": "node scripts/integration.mjs",
     "test:scenarios": "node scripts/scenario-integration.mjs",
+    "test:scenario-browser-offline": "node scripts/scenario-offline-browser.mjs",
     "test:browser-offline": "node scripts/integration-offline.mjs"
   },
   "keywords": [
@@ -34,6 +35,8 @@
     "chrome-devtools-protocol",
     "testing",
     "website-inspection",
+    "fault-injection",
+    "network-testing",
     "open-source"
   ]
 }
